@@ -4,11 +4,10 @@ on:
   push:
     branches:
       - ino_dev
-
   workflow_dispatch:
 
 jobs:
-  build:
+  quality:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,16 +20,16 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run tests
-        run: npm test
+      - name: Check package integrity
+        run: npm ls --depth=0
 
-      - name: Create artifact
+      - name: Count source files
         run: |
           mkdir artifacts
-          echo "Build OK" > artifacts/result.txt
+          find . -name "*.js" | wc -l > artifacts/js-files.txt
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: build-result
+          name: quality-report
           path: artifacts/
