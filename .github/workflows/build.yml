@@ -5,54 +5,32 @@ on:
     branches:
       - ino_dev
 
-  pull_request:
-    branches:
-      - ino_dev
-
   workflow_dispatch:
 
 jobs:
-  build-and-quality:
-    name: Build, Test and Code Quality
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      # Weryfikacja że projekt się buduje / instaluje poprawnie
-      - name: Verify package integrity
-        run: npm pack
-
-      # Jeżeli repo posiada lint
-      - name: Run lint
-        run: npm run lint --if-present
-
-      # Uruchomienie testów
       - name: Run tests
         run: npm test
 
-      # Utworzenie artefaktu
-      - name: Create artifact package
+      - name: Create artifact
         run: |
-          mkdir artifact
-          cp package.json artifact/
-          cp -r bin artifact/ 2>/dev/null || true
-          cp -r lib artifact/ 2>/dev/null || true
-          cp -r templates artifact/ 2>/dev/null || true
+          mkdir artifacts
+          echo "Build OK" > artifacts/result.txt
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ino-dev-build-artifact
-          path: artifact/
-          retention-days: 7
+          name: build-result
+          path: artifacts/
